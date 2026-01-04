@@ -110,3 +110,4 @@ When this repository is used as a git submodule in a Turborepo monorepo:
 - Check `DATABASE_URL` in `.env`
 - Run `npx prisma generate` if schema changed
 
+
