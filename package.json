@@ -1,34 +1,34 @@
 {
-  "name": "@algedi/ai-service",
+  "name": "@algedi/ai",
   "version": "0.1.0",
-  "description": "AI operations service for Algedi Multi-Tenant E-Commerce Platform",
+  "description": "Unified AI Editor and Service for Algedi Multi-Tenant E-Commerce Platform",
   "author": "WANG Guoqin",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/algedi/ai-service.git"
+    "url": "https://github.com/algedi/ai.git"
   },
   "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
   "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "worker": "tsx watch src/worker.ts",
-    "type-check": "tsc --noEmit"
-  },
-  "dependencies": {
-    "express": "^4.18.2",
-    "openai": "^4.20.1",
-    "ioredis": "^5.3.2",
-    "@prisma/client": "^5.9.1",
-    "zod": "^3.22.4"
+    "build": "pnpm --filter './packages/*' build && pnpm --filter './apps/*' build",
+    "dev": "pnpm --parallel --filter './apps/*' dev",
+    "dev:editor": "pnpm --filter '@algedi/ai-editor' dev",
+    "dev:service": "pnpm --filter '@algedi/ai-service' dev",
+    "dev:worker": "pnpm --filter '@algedi/ai-service' worker",
+    "lint": "pnpm --filter './packages/*' lint && pnpm --filter './apps/*' lint",
+    "type-check": "pnpm --filter './packages/*' type-check && pnpm --filter './apps/*' type-check"
   },
   "devDependencies": {
-    "@types/express": "^4.17.21",
-    "@types/node": "^20.11.5",
-    "tsx": "^4.7.0",
-    "typescript": "^5.3.3",
-    "prisma": "^5.9.1"
+    "typescript": "^5.3.3"
+  },
+  "packageManager": "pnpm@8.15.0",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
   }
 }
 

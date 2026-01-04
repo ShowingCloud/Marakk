@@ -1,113 +1,127 @@
-# Setup Guide
+# Setup Guide for Algedi AI
 
-This guide explains how to set up Algedi AI Service in different environments.
+This guide explains how to set up the unified Algedi AI package in different scenarios.
 
-## Standalone Setup
+## Standalone Development
 
-This is the default setup when cloning this repository directly.
+When developing this package independently:
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd apps/ai-service
-   ```
+```bash
+# Clone the repository
+git clone <repository-url>
+cd packages/ai
 
-2. **Install dependencies**
-   ```bash
-   pnpm install
-   ```
+# Install dependencies
+pnpm install
 
-3. **Set up Prisma** (if using database)
-   ```bash
-   npx prisma generate
-   npx prisma migrate dev
-   ```
+# Set up environment variables for ai-service
+cp apps/ai-service/.env.example apps/ai-service/.env
+# Edit apps/ai-service/.env with your configuration
 
-4. **Set up environment variables**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your configuration
-   # IMPORTANT: Add your OPENAI_API_KEY
-   ```
+# Run development
+pnpm dev
+```
 
-5. **Start API server**
-   ```bash
-   pnpm dev
-   ```
+## As a Git Submodule
 
-6. **Start worker** (in separate terminal)
-   ```bash
-   pnpm worker
-   ```
+When this package is used as a git submodule in the main Algedi monorepo:
 
-## Monorepo Setup (Git Submodule)
+### Initial Setup
 
-When this repository is used as a git submodule in a Turborepo monorepo:
+```bash
+# From the main monorepo root
+git submodule add <repository-url> packages/ai
+git submodule update --init --recursive
+```
 
-1. **Add as submodule** (from monorepo root)
-   ```bash
-   git submodule add <repository-url> apps/ai-service
-   ```
+### Updating the Submodule
 
-2. **Install dependencies** (from monorepo root)
-   ```bash
-   pnpm install
-   ```
+```bash
+# From the main monorepo root
+cd packages/ai
+git pull origin main
+cd ../..
+git add packages/ai
+git commit -m "Update ai submodule"
+```
 
-3. **Run with Turbo**
-   ```bash
-   # Terminal 1: API server
-   pnpm dev --filter @algedi/ai-service
-   
-   # Terminal 2: Worker
-   pnpm worker --filter @algedi/ai-service
-   ```
+### Cloning with Submodules
 
-## Dependencies
+```bash
+# Clone the main repo with submodules
+git clone --recurse-submodules <main-repo-url>
 
-### Required
+# Or if already cloned
+git submodule update --init --recursive
+```
 
-- Node.js >= 18.0.0
-- pnpm >= 8.0.0
-- PostgreSQL >= 15.0 (for storing results)
-- Redis (for job queue)
-- OpenAI API key
+## Workspace Configuration
+
+The unified package uses pnpm workspaces. The root `package.json` defines:
+
+- `packages/ai-editor` - React library
+- `apps/ai-service` - Backend service
+
+Both can be developed and built independently or together.
 
 ## Environment Variables
 
-**Required**:
-- `OPENAI_API_KEY` - Your OpenAI API key
+### AI Service
 
-**Optional** (with defaults):
-- `PORT` - API server port (default: 3001)
-- `REDIS_HOST` - Redis host (default: localhost)
-- `REDIS_PORT` - Redis port (default: 6379)
-- `DATABASE_URL` - PostgreSQL connection string
+Create `apps/ai-service/.env`:
+
+```env
+PORT=3001
+OPENAI_API_KEY=your-key-here
+REDIS_HOST=localhost
+REDIS_PORT=6379
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/algedi
+```
+
+## Development Commands
+
+```bash
+# Build everything
+pnpm build
+
+# Run all services
+pnpm dev
+
+# Run editor only
+pnpm dev:editor
+
+# Run service only
+pnpm dev:service
+
+# Run worker only
+pnpm dev:worker
+```
+
+## Integration with Main Monorepo
+
+When used as a submodule, the main monorepo's `pnpm-workspace.yaml` should include:
+
+```yaml
+packages:
+  - "packages/ai/packages/*"
+  - "packages/ai/apps/*"
+```
+
+This allows the main monorepo to reference packages from the submodule.
 
 ## Troubleshooting
 
-### OpenAI API Errors
+### Submodule Not Updating
 
-- Verify `OPENAI_API_KEY` is set correctly
-- Check API key has sufficient credits
-- Ensure API key has access to Vision models
+```bash
+git submodule update --remote packages/ai
+```
 
-### Redis Connection Errors
+### Workspace Dependencies Not Resolving
 
-- Ensure Redis is running
-- Check `REDIS_HOST` and `REDIS_PORT` in `.env`
-- Test connection: `redis-cli ping`
+Ensure the main monorepo's `pnpm-workspace.yaml` includes the submodule paths.
 
-### Worker Not Processing Jobs
+### Build Errors
 
-- Ensure worker process is running
-- Check Redis queue: `redis-cli LLEN ai:image-description-queue`
-- Review worker logs for errors
-
-### Database Connection Errors
-
-- Ensure PostgreSQL is running
-- Check `DATABASE_URL` in `.env`
-- Run `npx prisma generate` if schema changed
-
+Make sure to run `pnpm install` from the unified package root first, then from the main monorepo root.
 

@@ -1,63 +1,99 @@
-# Contributing to Algedi AI Service
+# Contributing to Algedi AI
 
-Thank you for your interest in contributing to Algedi AI Service!
+Thank you for your interest in contributing to Algedi AI!
 
 ## Development Setup
 
-### Standalone Development
+### Prerequisites
 
-This repository can be developed independently:
+- Node.js >= 18.0.0
+- pnpm >= 8.0.0
+- PostgreSQL (for ai-service)
+- Redis (for ai-service)
+
+### Setup
 
 ```bash
+# Clone the repository
 git clone <repository-url>
-cd apps/ai-service
+cd packages/ai
+
+# Install dependencies
 pnpm install
-npx prisma generate
-pnpm dev
-# In another terminal
-pnpm worker
+
+# Set up environment variables
+cp apps/ai-service/.env.example apps/ai-service/.env
+# Edit .env with your configuration
 ```
 
-### Monorepo Development
+## Project Structure
 
-When used as a git submodule in a Turborepo monorepo:
+```
+packages/ai/
+├── packages/
+│   └── ai-editor/     # React library
+├── apps/
+│   └── ai-service/    # Backend service
+└── package.json       # Root workspace configuration
+```
 
-1. The root `package.json` may override dependencies using workspace protocol
-2. Use `pnpm install` from the monorepo root
-3. Run commands with Turbo: `pnpm dev --filter @algedi/ai-service`
+## Development Workflow
 
-## Token Usage Tracking
+1. **Create a feature branch**
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
 
-⚠️ **IMPORTANT**: All AI operations must track token usage for billing. Ensure `tokens_used` is recorded in the `PromptLog` table.
+2. **Make your changes**
+   - Follow existing code style
+   - Add tests if applicable
+   - Update documentation
+
+3. **Run checks**
+   ```bash
+   pnpm lint
+   pnpm type-check
+   pnpm build
+   ```
+
+4. **Commit your changes**
+   ```bash
+   git commit -m "feat: your feature description"
+   ```
+
+5. **Push and create a pull request**
 
 ## Code Style
 
-- Follow the existing code style
 - Use TypeScript for all new code
-- Always track token usage
+- Follow existing patterns
 - Run `pnpm lint` before committing
-- Run `pnpm type-check` to ensure type safety
+- Ensure type safety with `pnpm type-check`
+
+## Package-Specific Guidelines
+
+### AI Editor (`packages/ai-editor`)
+
+- **NEVER** import from CMS or Commerce Backend
+- Keep the library stateless
+- Use React hooks for state management
+- Ensure Shadow DOM compatibility
+
+### AI Service (`apps/ai-service`)
+
+- Always track token usage for billing
+- Handle errors gracefully
+- Use Zod for input validation
+- Follow async job processing patterns
 
 ## Testing
 
-When adding new features:
-
-1. Test with actual OpenAI API (use test API key)
-2. Verify token counting is accurate
-3. Test queue processing
-4. Ensure error handling is robust
-
-## Pull Requests
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Ensure token usage is tracked
-5. Test with real API calls
-6. Submit a pull request with a clear description
+- Test with actual OpenAI API (use test API key)
+- Verify token counting accuracy
+- Test queue processing
+- Ensure error handling is robust
 
 ## License
 
 By contributing, you agree that your contributions will be licensed under the MIT License.
-
 
