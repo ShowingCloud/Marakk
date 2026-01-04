@@ -1,6 +1,13 @@
 {
   "name": "@algedi/ai-service",
   "version": "0.1.0",
+  "description": "AI operations service for Algedi Multi-Tenant E-Commerce Platform",
+  "author": "WANG Guoqin",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/algedi/ai-service.git"
+  },
   "private": true,
   "scripts": {
     "dev": "tsx watch src/index.ts",
