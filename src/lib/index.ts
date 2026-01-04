@@ -1,3 +1,3 @@
 // Utilities will be exported here
-export {};
+export * from './prisma';
 
