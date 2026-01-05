@@ -1,3 +1,4 @@
 // Utilities will be exported here
-export * from './prisma';
+export * from './types';
+export * from './utils';
 
