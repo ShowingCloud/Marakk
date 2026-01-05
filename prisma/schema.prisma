@@ -43,3 +43,4 @@ model PromptHistory {
   @@index([createdAt])
 }
 
+
