@@ -10,6 +10,7 @@ export interface FloatingToolbarProps {
   onGenerate: (prompt: string | PromptAugmentation) => Promise<void>;
   onClose: () => void;
   useStructuredPrompt?: boolean; // Toggle between simple and structured prompt
+  organizationId?: string; // For semantic search in PromptBuilder
 }
 
 /**
@@ -23,6 +24,7 @@ export function FloatingToolbar({
   onGenerate, 
   onClose,
   useStructuredPrompt = true,
+  organizationId,
 }: FloatingToolbarProps) {
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -80,6 +82,8 @@ export function FloatingToolbar({
             initialPrompt={prompt}
             onBuild={handleStructuredPrompt}
             onCancel={() => setShowPromptBuilder(false)}
+            organizationId={organizationId}
+            showSuggestions={!!organizationId}
           />
         </div>
       </div>

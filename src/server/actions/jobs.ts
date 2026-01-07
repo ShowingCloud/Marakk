@@ -4,6 +4,12 @@ import { getQueue } from '../../workers/queue';
 import type { ImageDescriptionJobData, TextGenerationJobData, ComponentGenerationJobData } from '../../lib/job-types';
 import type { ConnectionOptions } from 'bullmq';
 
+export interface PromptEmbeddingJobData {
+  promptHistoryId: string;
+  organizationId: string;
+  prompt: string;
+}
+
 /**
  * Enqueue an image description job
  * Returns job ID for status tracking
@@ -57,6 +63,26 @@ export async function enqueueComponentGeneration(
   const queue = getQueue(queueConnection);
   
   const job = await queue.add('component-generation', data, {
+    attempts: 2,
+    backoff: {
+      type: 'fixed',
+      delay: 1000,
+    },
+  });
+
+  return { jobId: job.id! };
+}
+
+/**
+ * Enqueue a prompt embedding generation job
+ */
+export async function enqueuePromptEmbedding(
+  data: PromptEmbeddingJobData,
+  queueConnection: ConnectionOptions
+): Promise<{ jobId: string }> {
+  const queue = getQueue(queueConnection);
+  
+  const job = await queue.add('prompt-embedding', data, {
     attempts: 2,
     backoff: {
       type: 'fixed',

@@ -198,18 +198,19 @@ export function VisualEditor({ initialData, onGenerate, onSave, className }: Vis
   return (
     <div className={className} ref={shadowHostRef} style={{ position: 'relative' }}>
       {/* Floating Toolbar */}
-      {toolbarPosition && selectedComponentId && (
-        <FloatingToolbar
-          position={toolbarPosition}
-          componentId={selectedComponentId}
-          onGenerate={handleGenerate}
-          onClose={() => {
-            setToolbarPosition(null);
-            setSelectedElement(null);
-            setSelectedComponentId(null);
-          }}
-        />
-      )}
+            {toolbarPosition && selectedComponentId && (
+              <FloatingToolbar
+                position={toolbarPosition}
+                componentId={selectedComponentId}
+                onGenerate={handleGenerate}
+                onClose={() => {
+                  setToolbarPosition(null);
+                  setSelectedElement(null);
+                  setSelectedComponentId(null);
+                }}
+                organizationId={context.tenantId as string | undefined}
+              />
+            )}
 
       <ShadowRoot.div
         onShadowRootReady={(root) => {

@@ -1,6 +1,7 @@
 import type { Job } from 'bullmq';
 import { imageDescriptionProcessor } from './image-description';
 import { aiProcessor } from './text-generation';
+import { promptEmbeddingProcessor } from './prompt-embedding';
 
 /**
  * Main job router - routes jobs to appropriate processors based on job name
@@ -14,6 +15,8 @@ export async function routeJobProcessor(job: Job) {
     case 'text-generation':
     case 'component-generation':
       return aiProcessor(job);
+    case 'prompt-embedding':
+      return promptEmbeddingProcessor(job);
     default:
       throw new Error(`Unknown job type: ${jobName}`);
   }
@@ -22,4 +25,5 @@ export async function routeJobProcessor(job: Job) {
 // Export individual processors for direct use
 export { imageDescriptionProcessor } from './image-description';
 export { aiProcessor } from './text-generation';
+export { promptEmbeddingProcessor } from './prompt-embedding';
 

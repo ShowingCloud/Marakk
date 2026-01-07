@@ -5,6 +5,7 @@ import { createOpenAI } from 'ai/openai';
 import { checkCredits, deductCredits } from '@repo/commerce';
 import type { PromptAugmentation } from '../../lib/prompt-types';
 import { buildPromptPair } from '../../lib/prompt-synthesis';
+import { storePromptWithEmbedding } from './search-prompts';
 
 interface GenerateComponentStreamOptions {
   prompt: string | PromptAugmentation; // Support both simple string and structured prompt
@@ -125,6 +126,22 @@ export default function ProductList({ products }) {
       console.error('Error deducting credits:', creditError);
       // Log but don't fail the request - credits were already checked
     }
+
+    // Store prompt in history and generate embedding asynchronously
+    // This happens in the background and doesn't block the response
+    const promptText = typeof prompt === 'string' ? prompt : (prompt as PromptAugmentation).basePrompt;
+    storePromptWithEmbedding({
+      organizationId: tenantId,
+      prompt: promptText,
+      model: process.env.OPENAI_MODEL || 'gpt-4o',
+      metadata: {
+        componentId: currentComponent?.id,
+        isStructured: isStructuredPrompt,
+      },
+    }).catch((error) => {
+      console.error('Error storing prompt history:', error);
+      // Don't fail the request if history storage fails
+    });
 
     return result.toDataStreamResponse();
   } catch (error) {

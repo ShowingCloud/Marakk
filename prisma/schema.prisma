@@ -73,11 +73,15 @@ model PromptHistory {
   tokensUsed    Int?
   metadata      Json?    // Additional generation metadata
   // productId   String?  // Logical Link to commerce Product (just a string, NO @relation)
+  // embedding   Unsupported("pgvector") // Vector embedding for semantic search (1536 dimensions for text-embedding-3-small)
+  // Note: pgvector requires raw SQL queries. Use Prisma.$queryRaw for vector operations.
+  embeddingGenerated Boolean @default(false) // Track if embedding has been generated
   createdAt     DateTime @default(now())
 
   @@map("editor_prompt_history")
   @@index([organizationId])
   @@index([createdAt])
+  @@index([embeddingGenerated])
 }
 
 

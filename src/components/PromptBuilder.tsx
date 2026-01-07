@@ -3,19 +3,29 @@
 import { useState } from 'react';
 import type { PromptAugmentation, PromptTone, PromptFormat, PromptTemplate } from '../lib/prompt-types';
 import { PROMPT_TEMPLATES } from '../lib/prompt-types';
+import { PromptSuggestions } from './PromptSuggestions';
 
 export interface PromptBuilderProps {
   initialPrompt?: string;
   onBuild: (augmentation: PromptAugmentation) => void;
   onCancel?: () => void;
   className?: string;
+  organizationId?: string; // For semantic search
+  showSuggestions?: boolean; // Whether to show related prompts
 }
 
 /**
  * PromptBuilder - Structured prompt input UI
  * Allows users to select tone, format, and inject context
  */
-export function PromptBuilder({ initialPrompt = '', onBuild, onCancel, className }: PromptBuilderProps) {
+export function PromptBuilder({ 
+  initialPrompt = '', 
+  onBuild, 
+  onCancel, 
+  className,
+  organizationId,
+  showSuggestions = true,
+}: PromptBuilderProps) {
   const [basePrompt, setBasePrompt] = useState(initialPrompt);
   const [tone, setTone] = useState<PromptTone | undefined>(undefined);
   const [format, setFormat] = useState<PromptFormat | undefined>(undefined);
@@ -90,6 +100,16 @@ export function PromptBuilder({ initialPrompt = '', onBuild, onCancel, className
           className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
           rows={3}
         />
+        {showSuggestions && organizationId && (
+          <div className="mt-2">
+            <PromptSuggestions
+              currentPrompt={basePrompt}
+              organizationId={organizationId}
+              onSelectPrompt={(prompt) => setBasePrompt(prompt)}
+              maxSuggestions={3}
+            />
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-4">
