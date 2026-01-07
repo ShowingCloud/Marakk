@@ -2,6 +2,7 @@
 
 import { streamText } from 'ai';
 import { createOpenAI } from 'ai/openai';
+import { checkCredits, deductCredits } from '@repo/commerce';
 
 interface GenerateComponentStreamOptions {
   prompt: string;
@@ -16,9 +17,24 @@ interface GenerateComponentStreamOptions {
 /**
  * Generate a React component using OpenAI with streaming
  * Returns a stream of React component code
+ * 
+ * Enforces credits check before calling OpenAI
+ * Deducts 1 credit per generation request
  */
 export async function generateComponentStream(options: GenerateComponentStreamOptions) {
   const { prompt, currentComponent, context } = options;
+
+  // Extract tenantId from context
+  const tenantId = context?.tenantId as string | undefined;
+  if (!tenantId) {
+    throw new Error('tenantId is required in context for billing');
+  }
+
+  // Check credits before proceeding (1 credit per generation)
+  const hasCredits = await checkCredits(tenantId, 1);
+  if (!hasCredits) {
+    throw new Error(`Insufficient credits. Please purchase credits to continue using AI generation.`);
+  }
 
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
@@ -78,6 +94,16 @@ export default function ProductList({ products }) {
       prompt: userPrompt,
       temperature: 0.7,
     });
+
+    // Deduct credits after successful generation
+    // We do this after the stream is created but before returning
+    // In case of errors, credits won't be deducted
+    try {
+      await deductCredits(tenantId, 1);
+    } catch (creditError) {
+      console.error('Error deducting credits:', creditError);
+      // Log but don't fail the request - credits were already checked
+    }
 
     return result.toDataStreamResponse();
   } catch (error) {
