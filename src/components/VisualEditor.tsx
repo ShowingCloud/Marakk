@@ -7,6 +7,7 @@ import { SelectionOverlay } from './SelectionOverlay';
 export interface VisualEditorProps {
   initialData?: unknown; // JSON schema or component tree
   onGenerate?: (componentId: string, prompt: string) => Promise<void>;
+  onSave?: (layout: unknown) => Promise<{ success: boolean; message?: string }>;
   className?: string;
 }
 
@@ -14,7 +15,7 @@ export interface VisualEditorProps {
  * VisualEditor - The main AI-powered visual editor component
  * Uses Shadow DOM for style isolation and implements click-to-edit functionality
  */
-export function VisualEditor({ initialData, onGenerate, className }: VisualEditorProps) {
+export function VisualEditor({ initialData, onGenerate, onSave, className }: VisualEditorProps) {
   const [selectedElement, setSelectedElement] = useState<HTMLElement | null>(null);
   const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null);
   const shadowHostRef = useRef<HTMLDivElement>(null);
