@@ -8,3 +8,7 @@ export { FloatingToolbar } from './FloatingToolbar';
 export type { FloatingToolbarProps } from './FloatingToolbar';
 export { LivePreview } from './LivePreview';
 export type { LivePreviewProps } from './LivePreview';
+export { ImageUploader } from './ImageUploader';
+export type { ImageUploaderProps } from './ImageUploader';
+export { JobStatusPolling } from './JobStatusPolling';
+export type { JobStatusPollingProps } from './JobStatusPolling';

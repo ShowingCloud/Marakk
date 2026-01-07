@@ -5,4 +5,6 @@
 
 // Export all actions
 export * from './actions/generate';
+export * from './actions/jobs';
+export * from './actions/upload-asset';
 
