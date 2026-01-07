@@ -74,10 +74,15 @@ export function VisualEditor({ initialData, onGenerate, onSave, className }: Vis
 
   /**
    * Handle AI generation with streaming
+   * Supports both simple string prompts and structured PromptAugmentation
    */
   const handleGenerate = useCallback(
-    async (prompt: string) => {
-      if (!selectedComponentId || !prompt.trim()) return;
+    async (prompt: string | { basePrompt: string; [key: string]: unknown }) => {
+      if (!selectedComponentId) return;
+      
+      // Validate prompt
+      const promptText = typeof prompt === 'string' ? prompt : prompt.basePrompt;
+      if (!promptText.trim()) return;
 
       setIsGenerating(true);
       setGeneratedCode('');
@@ -89,7 +94,7 @@ export function VisualEditor({ initialData, onGenerate, onSave, className }: Vis
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            prompt,
+            prompt, // Can be string or PromptAugmentation object
             componentId: selectedComponentId,
             context,
           }),
@@ -146,7 +151,8 @@ export function VisualEditor({ initialData, onGenerate, onSave, className }: Vis
         }
 
         if (onGenerate) {
-          await onGenerate(selectedComponentId, prompt);
+          const promptText = typeof prompt === 'string' ? prompt : prompt.basePrompt;
+          await onGenerate(selectedComponentId, promptText);
         }
       } catch (error) {
         console.error('Error generating component:', error);

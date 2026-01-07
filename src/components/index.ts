@@ -12,3 +12,5 @@ export { ImageUploader } from './ImageUploader';
 export type { ImageUploaderProps } from './ImageUploader';
 export { JobStatusPolling } from './JobStatusPolling';
 export type { JobStatusPollingProps } from './JobStatusPolling';
+export { PromptBuilder } from './PromptBuilder';
+export type { PromptBuilderProps } from './PromptBuilder';

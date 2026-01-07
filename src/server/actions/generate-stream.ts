@@ -3,9 +3,11 @@
 import { streamText } from 'ai';
 import { createOpenAI } from 'ai/openai';
 import { checkCredits, deductCredits } from '@repo/commerce';
+import type { PromptAugmentation } from '../../lib/prompt-types';
+import { buildPromptPair } from '../../lib/prompt-synthesis';
 
 interface GenerateComponentStreamOptions {
-  prompt: string;
+  prompt: string | PromptAugmentation; // Support both simple string and structured prompt
   currentComponent?: {
     id: string;
     code?: string;
@@ -41,8 +43,23 @@ export async function generateComponentStream(options: GenerateComponentStreamOp
     throw new Error('OPENAI_API_KEY environment variable is not set');
   }
 
-  // Build the system prompt for React component generation
-  const systemPrompt = `You are an expert React component generator. Generate valid React component code.
+  // Determine if prompt is structured or simple string
+  const isStructuredPrompt = typeof prompt === 'object' && 'basePrompt' in prompt;
+  
+  let systemPrompt: string;
+  let userPrompt: string;
+
+  if (isStructuredPrompt) {
+    // Use structured prompt synthesis
+    const promptPair = buildPromptPair(prompt as PromptAugmentation, context);
+    systemPrompt = promptPair.system;
+    userPrompt = promptPair.user;
+    
+    // Add component-specific instructions for React generation
+    systemPrompt += '\n\nYou are generating React component code. Return ONLY the React component code, no markdown, no explanations. Use functional components with React hooks. Export as default export. Include proper data-component-id attributes.';
+  } else {
+    // Use simple prompt with default system prompt
+    systemPrompt = `You are an expert React component generator. Generate valid React component code.
 
 Rules:
 1. Return ONLY the React component code, no markdown, no explanations
@@ -70,15 +87,19 @@ export default function ProductList({ products }) {
 }
 \`\`\``;
 
-  // Build the user prompt with context
-  let userPrompt = prompt;
+    // Build the user prompt with context
+    userPrompt = prompt as string;
+  }
+
+  // Add current component context if available
   if (currentComponent) {
     userPrompt = `Current component: ${currentComponent.id}\n${
       currentComponent.code ? `Current code:\n\`\`\`jsx\n${currentComponent.code}\n\`\`\`\n` : ''
-    }${currentComponent.props ? `Current props: ${JSON.stringify(currentComponent.props)}\n` : ''}\n\nUser request: ${prompt}`;
+    }${currentComponent.props ? `Current props: ${JSON.stringify(currentComponent.props)}\n` : ''}\n\nUser request: ${userPrompt}`;
   }
 
-  if (context) {
+  // Add context data if not already included (for simple prompts)
+  if (context && !isStructuredPrompt) {
     userPrompt += `\n\nAvailable context data:\n${JSON.stringify(context, null, 2)}\n\nUse this context data in your component. For example, if context.products exists, use it to render a product list.`;
   }
 
