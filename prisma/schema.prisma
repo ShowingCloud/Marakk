@@ -27,6 +27,43 @@ model Asset {
   @@index([url])
 }
 
+model EditorProject {
+  id            String   @id @default(uuid())
+  organizationId String  // Logical Link (just a string, NO @relation)
+  name          String
+  description   String?  @db.Text
+  schema        Json     // The page/component tree structure
+  isPublished   Boolean  @default(false)
+  metadata      Json?    // Additional project metadata
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations within the same package
+  generations GenerationHistory[]
+
+  @@map("editor_projects")
+  @@index([organizationId])
+  @@index([isPublished])
+}
+
+model GenerationHistory {
+  id            String   @id @default(uuid())
+  organizationId String  // Logical Link (just a string, NO @relation)
+  projectId     String?  // Logical Link to EditorProject (just a string, NO @relation)
+  prompt        String   @db.Text
+  response      Json?    // Structured component JSON response
+  model         String?  // LLM model used (e.g., "gpt-4", "gpt-4o")
+  tokensUsed    Int?
+  componentId   String?  // The data-component-id that was edited
+  metadata      Json?    // Additional generation metadata
+  createdAt     DateTime @default(now())
+
+  @@map("editor_generation_history")
+  @@index([organizationId])
+  @@index([projectId])
+  @@index([createdAt])
+}
+
 model PromptHistory {
   id            String   @id @default(uuid())
   organizationId String  // Logical Link (just a string, NO @relation)
