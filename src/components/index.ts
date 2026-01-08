@@ -16,3 +16,5 @@ export { PromptBuilder } from './PromptBuilder';
 export type { PromptBuilderProps } from './PromptBuilder';
 export { PromptSuggestions } from './PromptSuggestions';
 export type { PromptSuggestionsProps } from './PromptSuggestions';
+export { GhostTextEditor } from './GhostTextEditor';
+export type { GhostTextEditorProps } from './GhostTextEditor';
