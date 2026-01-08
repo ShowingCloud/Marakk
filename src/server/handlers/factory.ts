@@ -176,6 +176,55 @@ export function createAIEditorRoutes(config: RouteFactoryConfig = {}) {
     },
 
     /**
+     * POST /inpaint - Submit image inpainting job
+     */
+    inpaint: async (request: NextRequest) => {
+      try {
+        const body = await request.json();
+        const { imageId, imageUrl, maskData, coordinates, organizationId, prompt } = body;
+
+        if (!imageId || !imageUrl || !maskData || !organizationId) {
+          return NextResponse.json(
+            { error: 'Missing required fields: imageId, imageUrl, maskData, organizationId' },
+            { status: 400 }
+          );
+        }
+
+        // Import queue dynamically
+        const { getInpaintingQueue } = await import('../../workers/queue');
+        const inpaintingQueue = getInpaintingQueue(redisConnection);
+
+        // Add job to queue
+        const job = await inpaintingQueue.add(
+          'image-inpainting',
+          {
+            imageId,
+            imageUrl,
+            maskData,
+            coordinates: coordinates || [],
+            organizationId,
+            prompt: prompt || 'Fill the masked area naturally',
+          },
+          {
+            attempts: 3,
+            backoff: {
+              type: 'exponential',
+              delay: 2000,
+            },
+          }
+        );
+
+        return NextResponse.json({ jobId: job.id }, { status: 202 });
+      } catch (error) {
+        console.error('Error submitting inpainting job:', error);
+        return NextResponse.json(
+          { error: error instanceof Error ? error.message : 'Internal server error' },
+          { status: 500 }
+        );
+      }
+    },
+
+    /**
      * GET /health - Health check endpoint
      */
     health: async () => {

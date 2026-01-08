@@ -17,6 +17,9 @@ export async function routeJobProcessor(job: Job) {
       return aiProcessor(job);
     case 'prompt-embedding':
       return promptEmbeddingProcessor(job);
+    case 'image-inpainting':
+      const { processImageInpainting } = await import('./image-inpainting');
+      return processImageInpainting(job);
     default:
       throw new Error(`Unknown job type: ${jobName}`);
   }
